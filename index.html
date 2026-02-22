@@ -8,25 +8,26 @@
         
         #postcard { 
             width: 800px; height: 500px; 
-            /* IMPORTANT: Use the exact filename including .png or .PNG */
+            /* RELATIVE PATH: No leading slash */
             background: url("AAVLCompletionPostcard.png") center/cover no-repeat; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             border: 4px solid #33C7BE; border-radius: 10px;
         }
 
-        /* Centering the QR and Input */
+        /* CENTERED CONTROLS */
         .controls { 
             margin-top: 30px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             gap: 15px; 
+            width: 100%;
         }
         
         #qrcode { background: white; padding: 10px; border-radius: 5px; }
         
         input { 
-            padding: 12px; font-size: 1.2rem; border-radius: 5px; border: none; width: 300px; text-align: center;
+            padding: 12px; font-size: 1.2rem; border-radius: 5px; border: none; width: 320px; text-align: center;
         }
 
         .hidden { display: none !important; }
@@ -36,28 +37,26 @@
 <body>
 
 <div id="postcard">
-    <h1>Ocean Giant Ambassador</h1>
-    <h2 id="display-name" style="font-size: 2.5rem; margin: 10px 0;">Visitor</h2>
-    <p>Successfully completed the Ocean Giants Challenge!</p>
+    <h1 style="color: #33C7BE; text-shadow: 2px 2px 4px #000;">Ocean Giant Ambassador</h1>
+    <span id="display-name" style="font-size: 2.8rem; font-weight: bold; text-shadow: 2px 2px 4px #000;">Visitor</span>
+    <p style="text-shadow: 1px 1px 2px #000;">Successfully completed the Ocean Giants Challenge!</p>
 </div>
 
-<!-- This area is now centered -->
 <div class="controls" id="ui-controls">
-    <label for="username">Type your name below:</label>
-    <input type="text" id="username" placeholder="Enter Name here..." oninput="updateAll()">
+    <label for="username" style="font-size: 1rem; opacity: 0.9;">Type your name to update the certificate:</label>
+    <input type="text" id="username" placeholder="Type name here..." oninput="updateAll()">
     <div id="qrcode"></div>
-    <p style="font-size: 0.9rem; opacity: 0.8;">Scan this QR code to download to your phone</p>
+    <p style="font-size: 0.85rem; opacity: 0.7;">Scan to download to your phone</p>
 </div>
 
-<button id="btn-download" onclick="downloadCert()" style="display:none;">Download Certificate</button>
+<button id="btn-download" onclick="downloadCert()" style="display:none;">Download My Certificate</button>
 
-<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com"></script>
 <script src="https://cdnjs.cloudflare.com"></script>
 
 <script>
     const nameDisplay = document.getElementById("display-name");
-    const qrcode = new QRCode(document.getElementById("qrcode"), { width: 150, height: 150 });
+    const qrcode = new QRCode(document.getElementById("qrcode"), { width: 140, height: 140 });
 
     window.onload = () => {
         const params = new URLSearchParams(window.location.search);
@@ -73,12 +72,13 @@
     function updateAll() {
         const val = document.getElementById("username").value || "Visitor";
         nameDisplay.textContent = val;
-        // This creates the link for the phone to open
-        const url = window.location.href.split('?')[0];
-        qrcode.makeCode(`${url}?name=${encodeURIComponent(val)}`);
+        // Clean URL to prevent double parameters
+        const baseUrl = window.location.href.split('?')[0];
+        qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(val)}`);
     }
 
     function downloadCert() {
+        // useCORS is required for images on GitHub Pages to be captured in a download
         html2canvas(document.getElementById("postcard"), { useCORS: true }).then(canvas => {
             const link = document.createElement("a");
             link.download = "Ocean-Giant-Ambassador.png";
