@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="en-HK">
 <head>
@@ -6,7 +7,8 @@
     <style>
         body { 
             margin: 0; background: #001219; color: #fff; 
-            font-family: 'Montserrat', sans-serif; 
+            /* Using standard rounded fonts for a friendly look */
+            font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             min-height: 100vh; 
         }
@@ -17,26 +19,25 @@
             background-size: 100% 100%; 
             position: relative; 
             border: 2px solid #33C7BE;
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* TEXT COLOR SET TO WHITE */
         #display-name { 
             position: absolute; 
-            top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 3.5rem; font-weight: bold; 
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 4rem; font-weight: bold; 
             color: #ffffff; /* White Name */
             text-align: center; width: 90%;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7); /* Adds shadow for readability */
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
         }
 
         #display-date { 
             position: absolute; 
             top: 85%; left: 70%; 
-            font-size: 1.2rem; font-weight: bold; 
+            font-size: 1.4rem; font-weight: bold; 
             color: #ffffff; /* White Date */
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
         .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
@@ -52,14 +53,14 @@
         }
 
         #qrcode-container { 
-            background: white; padding: 15px; border-radius: 10px; 
-            display: none; /* Initially hidden */
-            flex-direction: column; align-items: center; margin-top: 15px;
+            background: white; padding: 20px; border-radius: 10px; 
+            display: none; 
+            flex-direction: column; align-items: center; margin-top: 20px;
         }
 
         #mobile-download-btn { 
             display: none; margin-top: 20px; background: #33C7BE; color: #001219;
-            padding: 20px 40px; border: none; border-radius: 10px; font-size: 1.5rem; font-weight: bold;
+            padding: 20px 40px; border: none; border-radius: 10px; font-size: 1.8rem; font-weight: bold;
         }
     </style>
 </head>
@@ -72,16 +73,17 @@
 
     <div class="controls" id="monitor-ui">
         <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
-        <button type="button" class="gen-btn" onclick="showQRCode()">CREATE DOWNLOAD QR</button>
+        <button type="button" class="gen-btn" onclick="showQRCode()">GENERATE QR</button>
         
         <div id="qrcode-container">
             <div id="qrcode"></div>
-            <p style="color: #000; font-size: 0.8rem; margin-top: 10px; font-weight: bold;">SCAN TO SAVE TO PHONE</p>
+            <p style="color: #000; font-size: 1rem; margin-top: 10px; font-weight: bold;">SCAN TO SAVE TO PHONE</p>
         </div>
     </div>
 
     <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
+    <!-- Reliable QR and Canvas Libraries -->
     <script src="https://cdnjs.cloudflare.com"></script>
     <script src="https://cdnjs.cloudflare.com"></script>
 
@@ -89,21 +91,14 @@
         const nameDisplay = document.getElementById("display-name");
         const dateDisplay = document.getElementById("display-date");
         const qrContainer = document.getElementById("qrcode-container");
-        
-        // Setup QR once
-        const qrcode = new QRCode(document.getElementById("qrcode"), {
-            width: 180,
-            height: 180,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
+        const qrDiv = document.getElementById("qrcode");
 
         // Set Today's Date
         dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
             day: 'numeric', month: 'short', year: 'numeric'
         });
 
+        // Detect if opened on phone via QR
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             if (params.has('name')) {
@@ -125,20 +120,28 @@
                 return;
             }
             
-            // Generate link and display container
+            // Clear any old QR code
+            qrDiv.innerHTML = "";
+            qrContainer.style.display = "flex";
+            
+            // Generate link for the scan
             const cleanUrl = window.location.origin + window.location.pathname;
             const finalLink = `${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
             
-            qrcode.clear(); 
-            qrcode.makeCode(finalLink);
-            qrContainer.style.display = "flex"; // Make it visible
+            // Create New QR
+            new QRCode(qrDiv, {
+                text: finalLink,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff"
+            });
         }
 
         function downloadImage() {
-            // scale: 3 for high-res download
+            // high-quality capture (scale 3)
             html2canvas(document.getElementById("postcard"), { 
                 useCORS: true, 
-                allowTaint: true,
                 scale: 3 
             }).then(canvas => {
                 const link = document.createElement("a");
