@@ -11,6 +11,7 @@
             min-height: 100vh; 
         }
 
+        /* THE POSTCARD */
         #postcard { 
             width: 800px; height: 500px; 
             background: url("AAVLCompletionPostcard.png") no-repeat;
@@ -21,46 +22,48 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* TEXT SET TO WHITE */
+        /* NAME: Top 40%, Centered */
         #display-name { 
             position: absolute; 
-            top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 3.5rem; font-weight: bold; 
+            top: 40%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            font-size: 3.5rem; 
+            font-weight: bold; 
             color: #ffffff; 
-            text-align: center; width: 90%;
+            text-align: center; 
+            width: 90%;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
         }
 
+        /* DATE: Top 75%, Centered */
         #display-date { 
             position: absolute; 
-            top: 70%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 1.4rem; font-weight: bold; 
+            top: 75%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            font-size: 3.5rem; 
+            font-weight: bold; 
             color: #ffffff;
+            text-align: center;
+            width: 90%;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
+        /* MONITOR UI */
         .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        
-        input { 
-            padding: 15px; font-size: 1.5rem; border-radius: 10px; border: 2px solid #33C7BE; 
-            width: 400px; text-align: center; background: #002535; color: white;
-        }
+        input { padding: 15px; font-size: 1.5rem; border-radius: 10px; border: 2px solid #33C7BE; width: 400px; text-align: center; background: #002535; color: white; }
+        .gen-btn { background: #F26B38; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold; }
 
-        .gen-btn {
-            background: #F26B38; color: white; border: none; padding: 15px 30px;
-            border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold;
-        }
-
+        /* QR CONTAINER (Using Stable API Method) */
         #qrcode-container { 
             background: white; padding: 20px; border-radius: 10px; 
-            display: none; /* JavaScript will toggle to 'flex' */
-            flex-direction: column; align-items: center; margin-top: 20px;
+            display: none; flex-direction: column; align-items: center; margin-top: 20px;
         }
+        #qr-image { width: 200px; height: 200px; }
 
-        #mobile-download-btn { 
-            display: none; margin-top: 20px; background: #33C7BE; color: #001219;
-            padding: 20px 40px; border: none; border-radius: 10px; font-size: 1.8rem; font-weight: bold;
-        }
+        /* MOBILE DOWNLOAD */
+        #mobile-download-btn { display: none; margin-top: 20px; background: #33C7BE; color: #001219; padding: 20px 40px; border: none; border-radius: 10px; font-size: 1.8rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -72,28 +75,26 @@
 
     <div class="controls" id="monitor-ui">
         <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
-        <!-- type="button" prevents refreshing the page -->
-        <button type="button" class="gen-btn" onclick="showQRCode()">GENERATE QR</button>
+        <button type="button" class="gen-btn" onclick="generateQRViaAPI()">GENERATE QR</button>
         
         <div id="qrcode-container">
-            <div id="qrcode"></div>
+            <img id="qr-image" src="" alt="Scan Me">
             <p style="color: #000; font-size: 1rem; margin-top: 10px; font-weight: bold;">SCAN TO SAVE TO PHONE</p>
         </div>
     </div>
 
     <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-    <!-- Reliable libraries from Cloudflare CDN -->
-    <script src="https://cdnjs.cloudflare.com"></script>
+    <!-- Library for image capture -->
     <script src="https://cdnjs.cloudflare.com"></script>
 
     <script>
         const nameDisplay = document.getElementById("display-name");
         const dateDisplay = document.getElementById("display-date");
         const qrContainer = document.getElementById("qrcode-container");
-        const qrDiv = document.getElementById("qrcode");
+        const qrImage = document.getElementById("qr-image");
 
-        // Auto-set Date
+        // Set Date
         dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
             day: 'numeric', month: 'short', year: 'numeric'
         });
@@ -112,33 +113,24 @@
             qrContainer.style.display = "none"; 
         }
 
-        function showQRCode() {
+        function generateQRViaAPI() {
             const nameVal = document.getElementById("username").value.trim();
             if (nameVal === "") {
                 alert("Please enter your name first!");
                 return;
             }
-            
-            qrDiv.innerHTML = ""; // Clear existing QR
-            qrContainer.style.display = "flex"; 
-            
-            // Build the link for mobile redirection
+
+            // API method for QR is most reliable for exhibition monitors
             const cleanUrl = window.location.origin + window.location.pathname;
             const finalLink = `${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
+            const apiUrl = `https://api.qrserver.com{encodeURIComponent(finalLink)}`;
             
-            new QRCode(qrDiv, {
-                text: finalLink,
-                width: 200,
-                height: 200
-            });
+            qrImage.src = apiUrl;
+            qrContainer.style.display = "flex";
         }
 
         function downloadImage() {
-            // scale: 3 for high-res
-            html2canvas(document.getElementById("postcard"), { 
-                useCORS: true, 
-                scale: 3 
-            }).then(canvas => {
+            html2canvas(document.getElementById("postcard"), { useCORS: true, scale: 3 }).then(canvas => {
                 const link = document.createElement("a");
                 link.download = "Ocean-Giant-Ambassador.png";
                 link.href = canvas.toDataURL("image/png");
