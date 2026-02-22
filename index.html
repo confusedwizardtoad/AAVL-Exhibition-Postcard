@@ -21,17 +21,22 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
+        /* TEXT COLOR SET TO WHITE */
         #display-name { 
             position: absolute; 
-            top: 45%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 3.5rem; font-weight: bold; color: #000; 
+            top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 3.5rem; font-weight: bold; 
+            color: #ffffff; /* White Name */
             text-align: center; width: 90%;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7); /* Adds shadow for readability */
         }
 
         #display-date { 
             position: absolute; 
             top: 85%; left: 70%; 
-            font-size: 1.2rem; font-weight: bold; color: #000;
+            font-size: 1.2rem; font-weight: bold; 
+            color: #ffffff; /* White Date */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
         }
 
         .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
@@ -48,7 +53,8 @@
 
         #qrcode-container { 
             background: white; padding: 15px; border-radius: 10px; 
-            display: none; flex-direction: column; align-items: center; margin-top: 15px;
+            display: none; /* Initially hidden */
+            flex-direction: column; align-items: center; margin-top: 15px;
         }
 
         #mobile-download-btn { 
@@ -66,7 +72,7 @@
 
     <div class="controls" id="monitor-ui">
         <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
-        <button class="gen-btn" onclick="showQRCode()">CREATE DOWNLOAD QR</button>
+        <button type="button" class="gen-btn" onclick="showQRCode()">CREATE DOWNLOAD QR</button>
         
         <div id="qrcode-container">
             <div id="qrcode"></div>
@@ -84,13 +90,16 @@
         const dateDisplay = document.getElementById("display-date");
         const qrContainer = document.getElementById("qrcode-container");
         
-        // Initialize QR object once
+        // Setup QR once
         const qrcode = new QRCode(document.getElementById("qrcode"), {
             width: 180,
-            height: 180
+            height: 180,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
         });
 
-        // Set Date
+        // Set Today's Date
         dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
             day: 'numeric', month: 'short', year: 'numeric'
         });
@@ -98,7 +107,6 @@
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             if (params.has('name')) {
-                // PHONE MODE
                 nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
                 document.getElementById("monitor-ui").style.display = "none";
                 document.getElementById("mobile-download-btn").style.display = "block";
@@ -117,19 +125,22 @@
                 return;
             }
             
-            qrContainer.style.display = "flex";
-            
-            // Fix: Get the pure URL without existing parameters
+            // Generate link and display container
             const cleanUrl = window.location.origin + window.location.pathname;
             const finalLink = `${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
             
             qrcode.clear(); 
             qrcode.makeCode(finalLink);
+            qrContainer.style.display = "flex"; // Make it visible
         }
 
         function downloadImage() {
-            // scale: 3 ensures high resolution on phones
-            html2canvas(document.getElementById("postcard"), { useCORS: true, scale: 3 }).then(canvas => {
+            // scale: 3 for high-res download
+            html2canvas(document.getElementById("postcard"), { 
+                useCORS: true, 
+                allowTaint: true,
+                scale: 3 
+            }).then(canvas => {
                 const link = document.createElement("a");
                 link.download = "Ocean-Giant-Ambassador.png";
                 link.href = canvas.toDataURL("image/png");
