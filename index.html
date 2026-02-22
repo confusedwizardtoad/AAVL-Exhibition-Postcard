@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en-HK">
 <head>
@@ -11,7 +12,6 @@
             min-height: 100vh; 
         }
 
-        /* THE POSTCARD */
         #postcard { 
             width: 800px; height: 500px; 
             background: url("AAVLCompletionPostcard.png") no-repeat;
@@ -22,7 +22,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* WHITE TEXT: Name (3.5rem) and Date (1.4rem) */
         #display-name { 
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
             font-size: 3.5rem; font-weight: bold; color: #ffffff; 
@@ -35,18 +34,15 @@
             text-align: center; width: 90%; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* MONITOR UI */
         .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         input { padding: 15px; font-size: 1.5rem; border-radius: 10px; border: 2px solid #33C7BE; width: 400px; text-align: center; background: #002535; color: white; }
         .gen-btn { background: #F26B38; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold; }
 
-        /* QR CONTAINER - Fixed Visibility */
         #qrcode-container { 
             background: white; padding: 20px; border-radius: 10px; 
-            display: none; flex-direction: column; align-items: center; margin-top: 20px;
+            margin-top: 20px; display: none; flex-direction: column; align-items: center;
         }
 
-        /* MOBILE DOWNLOAD */
         #mobile-download-btn { display: none; margin-top: 20px; background: #33C7BE; color: #001219; padding: 20px 40px; border: none; border-radius: 10px; font-size: 1.8rem; font-weight: bold; }
     </style>
 </head>
@@ -69,67 +65,64 @@
 
     <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-    <!-- Reliable Local QR & Canvas Libraries -->
+    <!-- Your Requested Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-qrcode/1.0/jquery.qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
 
     <script>
-        const nameDisplay = document.getElementById("display-name");
-        const dateDisplay = document.getElementById("display-date");
-        const qrContainer = document.getElementById("qrcode-container");
-        const qrDiv = document.getElementById("qrcode");
-
-        // Set Date
-        dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
+        // Set Date on Load
+        document.getElementById("display-date").textContent = new Date().toLocaleDateString("en-HK", {
             day: 'numeric', month: 'short', year: 'numeric'
         });
 
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
+        // Mobile View Check
+        window.onload = function() {
+            var params = new URLSearchParams(window.location.search);
             if (params.has('name')) {
-                nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
+                document.getElementById("display-name").textContent = decodeURIComponent(params.get('name')).toUpperCase();
                 document.getElementById("monitor-ui").style.display = "none";
                 document.getElementById("mobile-download-btn").style.display = "block";
             }
         };
 
         function updatePreview() {
-            nameDisplay.textContent = document.getElementById("username").value.toUpperCase();
-            qrContainer.style.display = "none"; 
+            document.getElementById("display-name").textContent = document.getElementById("username").value.toUpperCase();
+            $("#qrcode-container").hide(); 
         }
 
         function generateQRLocal() {
-            const nameVal = document.getElementById("username").value.trim();
+            var nameVal = document.getElementById("username").value.trim();
             if (nameVal === "") {
                 alert("Please enter your name first!");
                 return;
             }
 
-            // Clear old QR and show container
-            qrDiv.innerHTML = "";
-            qrContainer.style.display = "flex";
+            $("#qrcode").empty(); 
+            $("#qrcode-container").css("display", "flex");
 
-            // Use the absolute URL of the current page
-            const cleanUrl = window.location.href.split('?')[0];
-            const finalLink = `${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
+            // Build the absolute link
+            var cleanUrl = window.location.href.split('?')[0];
+            var finalLink = cleanUrl + "?name=" + encodeURIComponent(nameVal);
 
-            // Generate QR using the library [QRCode.js]
-            new QRCode(qrDiv, {
-                text: finalLink,
+            // JQUERY QRCODE CALL
+            $("#qrcode").qrcode({
                 width: 200,
                 height: 200,
-                colorDark : "#000000",
-                colorLight : "#ffffff"
+                text: finalLink
             });
         }
 
         function downloadImage() {
-            html2canvas(document.getElementById("postcard"), { useCORS: true, scale: 3 }).then(canvas => {
-                const link = document.createElement("a");
-                link.download = "Ocean-Giant-Ambassador.png";
-                link.href = canvas.toDataURL("image/png");
-                link.click();
+            // html2canvas 0.4.1 uses a different callback syntax than 1.0+
+            html2canvas(document.getElementById("postcard"), {
+                onrendered: function(canvas) {
+                    var link = document.createElement("a");
+                    link.download = "Ocean-Giant-Ambassador.png";
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                },
+                useCORS: true
             });
         }
     </script>
