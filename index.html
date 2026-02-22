@@ -11,7 +11,6 @@
             min-height: 100vh; 
         }
 
-        /* 1. THE POSTCARD DISPLAY */
         #postcard { 
             width: 800px; height: 500px; 
             background: url("AAVLCompletionPostcard.png") no-repeat;
@@ -22,31 +21,26 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* 2. TEXT OVERLAY - Adjust top/left % to fit your poster lines */
         #display-name { 
             position: absolute; 
-            top: 52%; left: 50%; transform: translate(-50%, -50%);
+            top: 45%; left: 50%; transform: translate(-50%, -50%);
             font-size: 3.5rem; font-weight: bold; color: #000; 
             text-align: center; width: 90%;
         }
 
         #display-date { 
             position: absolute; 
-            top: 88%; left: 72%; 
+            top: 85%; left: 70%; 
             font-size: 1.2rem; font-weight: bold; color: #000;
         }
 
-        /* 3. MONITOR INTERFACE */
-        .controls { 
-            margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; 
-        }
+        .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         
         input { 
             padding: 15px; font-size: 1.5rem; border-radius: 10px; border: 2px solid #33C7BE; 
             width: 400px; text-align: center; background: #002535; color: white;
         }
 
-        /* Action Button for Monitor */
         .gen-btn {
             background: #F26B38; color: white; border: none; padding: 15px 30px;
             border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold;
@@ -57,7 +51,6 @@
             display: none; flex-direction: column; align-items: center; margin-top: 15px;
         }
 
-        /* MOBILE VIEW DOWNLOAD BUTTON (Only seen after scanning) */
         #mobile-download-btn { 
             display: none; margin-top: 20px; background: #33C7BE; color: #001219;
             padding: 20px 40px; border: none; border-radius: 10px; font-size: 1.5rem; font-weight: bold;
@@ -66,13 +59,11 @@
 </head>
 <body>
 
-    <!-- The Certificate Image -->
     <div id="postcard">
         <span id="display-name"></span>
         <span id="display-date"></span>
     </div>
 
-    <!-- Monitor View: Input and QR Generator -->
     <div class="controls" id="monitor-ui">
         <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
         <button class="gen-btn" onclick="showQRCode()">CREATE DOWNLOAD QR</button>
@@ -83,10 +74,8 @@
         </div>
     </div>
 
-    <!-- Mobile View: Hidden until scanned -->
     <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com"></script>
     <script src="https://cdnjs.cloudflare.com"></script>
 
@@ -94,44 +83,52 @@
         const nameDisplay = document.getElementById("display-name");
         const dateDisplay = document.getElementById("display-date");
         const qrContainer = document.getElementById("qrcode-container");
-        const qrcode = new QRCode(document.getElementById("qrcode"), { width: 180, height: 180 });
+        
+        // Initialize QR object once
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            width: 180,
+            height: 180
+        });
 
-        // Auto-set HK Date
+        // Set Date
         dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
             day: 'numeric', month: 'short', year: 'numeric'
         });
 
-        // 1. Detect if the page was opened via QR scan on a phone
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             if (params.has('name')) {
+                // PHONE MODE
                 nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
                 document.getElementById("monitor-ui").style.display = "none";
                 document.getElementById("mobile-download-btn").style.display = "block";
             }
         };
 
-        // 2. Update the name on screen as they type
         function updatePreview() {
             nameDisplay.textContent = document.getElementById("username").value.toUpperCase();
-            qrContainer.style.display = "none"; // Hide QR if they start re-typing
+            qrContainer.style.display = "none"; 
         }
 
-        // 3. Generate QR code when button is clicked
         function showQRCode() {
-            const nameVal = document.getElementById("username").value;
-            if (nameVal.trim() === "") {
+            const nameVal = document.getElementById("username").value.trim();
+            if (nameVal === "") {
                 alert("Please enter your name first!");
                 return;
             }
             
             qrContainer.style.display = "flex";
-            const baseUrl = window.location.href.split('?')[0];
-            qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(nameVal)}`);
+            
+            // Fix: Get the pure URL without existing parameters
+            const cleanUrl = window.location.origin + window.location.pathname;
+            const finalLink = `${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
+            
+            qrcode.clear(); 
+            qrcode.makeCode(finalLink);
         }
 
-        // 4. Download function for the phone
         function downloadImage() {
+            // scale: 3 ensures high resolution on phones
             html2canvas(document.getElementById("postcard"), { useCORS: true, scale: 3 }).then(canvas => {
                 const link = document.createElement("a");
                 link.download = "Ocean-Giant-Ambassador.png";
