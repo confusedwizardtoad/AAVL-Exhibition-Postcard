@@ -2,83 +2,100 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ocean Giants Certificate</title>
+    <title>Ocean Giant Ambassador</title>
     <style>
         body { margin: 0; background: #001219; color: #fff; font-family: sans-serif; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
         
+        /* The Postcard: Shown immediately */
         #postcard { 
             width: 800px; height: 500px; 
-            /* RELATIVE PATH: No leading slash */
             background: url("AAVLCompletionPostcard.png") center/cover no-repeat; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            border: 4px solid #33C7BE; border-radius: 10px;
+            border: 4px solid #33C7BE; border-radius: 10px; position: relative;
         }
 
-        /* CENTERED CONTROLS */
-        .controls { 
-            margin-top: 30px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 15px; 
-            width: 100%;
-        }
-        
-        #qrcode { background: white; padding: 10px; border-radius: 5px; }
-        
-        input { 
-            padding: 12px; font-size: 1.2rem; border-radius: 5px; border: none; width: 320px; text-align: center;
-        }
+        /* Overlay text styling */
+        .cert-info { background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; width: 70%; }
+        #display-name { font-size: 3rem; font-weight: bold; display: block; margin: 10px 0; color: #FFD700; }
+        .date-text { font-size: 1.2rem; color: #33C7BE; font-weight: bold; }
 
+        /* Centered User Input & QR Area */
+        .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        #qrcode { background: white; padding: 10px; border-radius: 5px; display: none; } /* Hidden until name entered */
+        input { padding: 15px; font-size: 1.3rem; border-radius: 8px; border: none; width: 350px; text-align: center; }
+        
         .hidden { display: none !important; }
-        button { background: #F26B38; color: white; border: none; padding: 15px 30px; border-radius: 5px; font-size: 1.1rem; cursor: pointer; margin-top: 10px; }
+        #btn-download { background: #F26B38; color: white; border: none; padding: 20px 40px; border-radius: 8px; font-size: 1.5rem; cursor: pointer; display: none; }
     </style>
 </head>
 <body>
 
+<!-- 1. The Postcard (Always Visible) -->
 <div id="postcard">
-    <h1 style="color: #33C7BE; text-shadow: 2px 2px 4px #000;">Ocean Giant Ambassador</h1>
-    <span id="display-name" style="font-size: 2.8rem; font-weight: bold; text-shadow: 2px 2px 4px #000;">Visitor</span>
-    <p style="text-shadow: 1px 1px 2px #000;">Successfully completed the Ocean Giants Challenge!</p>
+    <div class="cert-info">
+        <h1 style="margin:0; font-size: 2rem;">OCEAN GIANT AMBASSADOR</h1>
+        <span id="display-name">YOUR NAME</span>
+        <p>Successfully completed the Ocean Giants Challenge</p>
+        <p class="date-text">Date: <span id="current-date"></span></p>
+    </div>
 </div>
 
-<div class="controls" id="ui-controls">
-    <label for="username" style="font-size: 1rem; opacity: 0.9;">Type your name to update the certificate:</label>
-    <input type="text" id="username" placeholder="Type name here..." oninput="updateAll()">
+<!-- 2. Monitor UI: Name Input & QR Generation -->
+<div class="controls" id="monitor-ui">
+    <p>Please enter your name to receive your certificate:</p>
+    <input type="text" id="username" placeholder="Type your name here..." oninput="generateAmbassadorQR()">
     <div id="qrcode"></div>
-    <p style="font-size: 0.85rem; opacity: 0.7;">Scan to download to your phone</p>
+    <p id="qr-instruction" style="display:none; font-size: 0.9rem;">Scan the code above to save this to your phone!</p>
 </div>
 
-<button id="btn-download" onclick="downloadCert()" style="display:none;">Download My Certificate</button>
+<!-- 3. Phone UI: Download Button (Hidden on Monitor) -->
+<div id="mobile-ui" style="margin-top: 20px;">
+    <button id="btn-download" onclick="downloadCert()">💾 SAVE CERTIFICATE</button>
+</div>
 
+<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com"></script>
 <script src="https://cdnjs.cloudflare.com"></script>
 
 <script>
     const nameDisplay = document.getElementById("display-name");
-    const qrcode = new QRCode(document.getElementById("qrcode"), { width: 140, height: 140 });
+    const qrcodeContainer = document.getElementById("qrcode");
+    const qrInstruction = document.getElementById("qr-instruction");
+    const qrcode = new QRCode(qrcodeContainer, { width: 160, height: 160 });
+
+    // Set Date Automatically 2026
+    document.getElementById("current-date").textContent = new Date().toLocaleDateString("en-HK", {
+        day: 'numeric', month: 'long', year: 'numeric'
+    });
 
     window.onload = () => {
         const params = new URLSearchParams(window.location.search);
         if (params.has('name')) {
-            nameDisplay.textContent = decodeURIComponent(params.get('name'));
-            document.getElementById("ui-controls").classList.add("hidden");
+            // MOBILE MODE: Show only postcard and download button
+            nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
+            document.getElementById("monitor-ui").style.display = "none";
             document.getElementById("btn-download").style.display = "block";
-        } else {
-            updateAll();
         }
     };
 
-    function updateAll() {
-        const val = document.getElementById("username").value || "Visitor";
-        nameDisplay.textContent = val;
-        // Clean URL to prevent double parameters
-        const baseUrl = window.location.href.split('?')[0];
-        qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(val)}`);
+    function generateAmbassadorQR() {
+        const val = document.getElementById("username").value;
+        if (val.trim().length > 0) {
+            nameDisplay.textContent = val.toUpperCase();
+            qrcodeContainer.style.display = "block";
+            qrInstruction.style.display = "block";
+            
+            // Create link for phone
+            const baseUrl = window.location.href.split('?')[0];
+            qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(val)}`);
+        } else {
+            nameDisplay.textContent = "YOUR NAME";
+            qrcodeContainer.style.display = "none";
+            qrInstruction.style.display = "none";
+        }
     }
 
     function downloadCert() {
-        // useCORS is required for images on GitHub Pages to be captured in a download
         html2canvas(document.getElementById("postcard"), { useCORS: true }).then(canvas => {
             const link = document.createElement("a");
             link.download = "Ocean-Giant-Ambassador.png";
@@ -88,4 +105,5 @@
     }
 </script>
 </body>
+</html>
 </html>
