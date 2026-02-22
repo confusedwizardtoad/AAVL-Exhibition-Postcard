@@ -6,12 +6,12 @@
     <style>
         body { 
             margin: 0; background: #001219; color: #fff; 
-            font-family: sans-serif; 
+            font-family: 'Montserrat', sans-serif; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             min-height: 100vh; 
         }
 
-        /* 1. THE POSTCARD BOX */
+        /* 1. THE POSTCARD DISPLAY */
         #postcard { 
             width: 800px; height: 500px; 
             background: url("AAVLCompletionPostcard.png") no-repeat;
@@ -22,66 +22,69 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* 2. DYNAMIC TEXT OVER YOUR IMAGE */
-        /* Adjust 'top' and 'left' to line up with the blank spots on your drawing */
+        /* 2. TEXT OVERLAY - Adjust top/left % to fit your poster lines */
         #display-name { 
             position: absolute; 
-            top: 50%; /* Change this % to move name up or down */
-            left: 50%; /* Change this % to move name left or right */
-            transform: translate(-50%, -50%);
+            top: 52%; left: 50%; transform: translate(-50%, -50%);
             font-size: 3.5rem; font-weight: bold; color: #000; 
             text-align: center; width: 90%;
         }
 
         #display-date { 
             position: absolute; 
-            top: 85%; /* Change this % to move date up or down */
-            left: 70%; /* Change this % to move date left or right */
+            top: 88%; left: 72%; 
             font-size: 1.2rem; font-weight: bold; color: #000;
         }
 
-        /* 3. INPUT AREA (CENTERED) */
+        /* 3. MONITOR INTERFACE */
         .controls { 
-            margin-top: 40px; 
-            display: flex; flex-direction: column; align-items: center; gap: 20px; 
+            margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; 
         }
         
         input { 
-            padding: 15px 25px; font-size: 1.5rem; border-radius: 12px; 
-            border: 3px solid #33C7BE; width: 400px; text-align: center; 
-            background: #002535; color: white; outline: none;
+            padding: 15px; font-size: 1.5rem; border-radius: 10px; border: 2px solid #33C7BE; 
+            width: 400px; text-align: center; background: #002535; color: white;
         }
 
-        #qrcode { background: white; padding: 12px; border-radius: 8px; display: none; }
+        /* Action Button for Monitor */
+        .gen-btn {
+            background: #F26B38; color: white; border: none; padding: 15px 30px;
+            border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold;
+        }
 
-        /* 4. DOWNLOAD BUTTON (Only shows on mobile) */
-        #mobile-ui { display: none; margin-top: 30px; }
-        .dl-btn { 
-            background: #F26B38; color: white; border: none; padding: 20px 50px; 
-            border-radius: 10px; font-size: 1.6rem; cursor: pointer; font-weight: bold; 
+        #qrcode-container { 
+            background: white; padding: 15px; border-radius: 10px; 
+            display: none; flex-direction: column; align-items: center; margin-top: 15px;
+        }
+
+        /* MOBILE VIEW DOWNLOAD BUTTON (Only seen after scanning) */
+        #mobile-download-btn { 
+            display: none; margin-top: 20px; background: #33C7BE; color: #001219;
+            padding: 20px 40px; border: none; border-radius: 10px; font-size: 1.5rem; font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <!-- This shows your drawing with the name and date floating on top -->
+    <!-- The Certificate Image -->
     <div id="postcard">
         <span id="display-name"></span>
         <span id="display-date"></span>
     </div>
 
-    <!-- This is the "Type Your Name" feature in the middle -->
+    <!-- Monitor View: Input and QR Generator -->
     <div class="controls" id="monitor-ui">
-        <input type="text" id="username" placeholder="TYPE YOUR NAME HERE" oninput="updatePage()">
+        <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
+        <button class="gen-btn" onclick="showQRCode()">CREATE DOWNLOAD QR</button>
         
-        <div id="qrcode"></div>
-        <p id="hint" style="display:none; color: #33C7BE; font-weight: bold;">Scan to Save Your Certificate!</p>
+        <div id="qrcode-container">
+            <div id="qrcode"></div>
+            <p style="color: #000; font-size: 0.8rem; margin-top: 10px; font-weight: bold;">SCAN TO SAVE TO PHONE</p>
+        </div>
     </div>
 
-    <!-- Hidden on monitor, visible on phone -->
-    <div id="mobile-ui">
-        <button class="dl-btn" onclick="downloadImage()">💾 SAVE TO PHONE</button>
-    </div>
+    <!-- Mobile View: Hidden until scanned -->
+    <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com"></script>
@@ -90,46 +93,48 @@
     <script>
         const nameDisplay = document.getElementById("display-name");
         const dateDisplay = document.getElementById("display-date");
-        const qrcodeContainer = document.getElementById("qrcode");
-        const qrcode = new QRCode(qrcodeContainer, { width: 180, height: 180 });
+        const qrContainer = document.getElementById("qrcode-container");
+        const qrcode = new QRCode(document.getElementById("qrcode"), { width: 180, height: 180 });
 
-        // Set Date automatically to Today
+        // Auto-set HK Date
         dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
             day: 'numeric', month: 'short', year: 'numeric'
         });
 
-        // Check if user is on phone
+        // 1. Detect if the page was opened via QR scan on a phone
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             if (params.has('name')) {
                 nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
                 document.getElementById("monitor-ui").style.display = "none";
-                document.getElementById("mobile-ui").style.display = "block";
+                document.getElementById("mobile-download-btn").style.display = "block";
             }
         };
 
-        function updatePage() {
-            const val = document.getElementById("username").value;
-            nameDisplay.textContent = val.toUpperCase();
-            
-            if (val.trim().length > 0) {
-                qrcodeContainer.style.display = "block";
-                document.getElementById("hint").style.display = "block";
-                
-                // Create link for phone scanning
-                const baseUrl = window.location.href.split('?')[0];
-                qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(val)}`);
-            } else {
-                qrcodeContainer.style.display = "none";
-                document.getElementById("hint").style.display = "none";
-            }
+        // 2. Update the name on screen as they type
+        function updatePreview() {
+            nameDisplay.textContent = document.getElementById("username").value.toUpperCase();
+            qrContainer.style.display = "none"; // Hide QR if they start re-typing
         }
 
+        // 3. Generate QR code when button is clicked
+        function showQRCode() {
+            const nameVal = document.getElementById("username").value;
+            if (nameVal.trim() === "") {
+                alert("Please enter your name first!");
+                return;
+            }
+            
+            qrContainer.style.display = "flex";
+            const baseUrl = window.location.href.split('?')[0];
+            qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(nameVal)}`);
+        }
+
+        // 4. Download function for the phone
         function downloadImage() {
-            // scale: 3 makes the image very high quality for the phone
             html2canvas(document.getElementById("postcard"), { useCORS: true, scale: 3 }).then(canvas => {
                 const link = document.createElement("a");
-                link.download = "My-Ocean-Giant-Certificate.png";
+                link.download = "Ocean-Giant-Ambassador.png";
                 link.href = canvas.toDataURL("image/png");
                 link.click();
             });
