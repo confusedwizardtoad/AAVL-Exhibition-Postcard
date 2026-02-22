@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ocean Giants Certificate</title>
+    <style>
+        body { margin: 0; background: #001219; color: #fff; font-family: sans-serif; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        #postcard { width: 800px; height: 500px; background: #005f73; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 4px solid #33C7BE; }
+        .hidden { display: none !important; }
+        #qrcode { background: white; padding: 10px; }
+        .controls { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="postcard">
+    <h1>Submarine Ace!</h1>
+    <span id="display-name">Visitor</span>
+    <p>Success! Scan to download.</p>
+</div>
+
+<div class="controls" id="ui-controls">
+    <input type="text" id="username" placeholder="Your Name..." oninput="updateAll()">
+    <div id="qrcode"></div>
+</div>
+
+<button id="btn-download" onclick="downloadCert()" style="display:none;">Download</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com"></script>
+<script>
+    const nameDisplay = document.getElementById("display-name");
+    const qrcode = new QRCode(document.getElementById("qrcode"), { width: 120, height: 120 });
+
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('name')) {
+            nameDisplay.textContent = decodeURIComponent(params.get('name'));
+            document.getElementById("ui-controls").classList.add("hidden");
+            document.getElementById("btn-download").style.display = "block";
+        } else {
+            updateAll();
+        }
+    };
+
+    function updateAll() {
+        const val = document.getElementById("username").value || "Visitor";
+        nameDisplay.textContent = val;
+        const url = window.location.href.split('?')[0];
+        qrcode.makeCode(`${url}?name=${encodeURIComponent(val)}`);
+    }
+
+    function downloadCert() {
+        html2canvas(document.getElementById("postcard")).then(canvas => {
+            const link = document.createElement("a");
+            link.download = "Certificate.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    }
+</script>
+</body>
+</html>
