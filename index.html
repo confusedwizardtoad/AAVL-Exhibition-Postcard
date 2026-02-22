@@ -1,109 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-HK">
 <head>
     <meta charset="UTF-8">
-    <title>Ocean Giant Ambassador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Giants Ambassador Certificate</title>
     <style>
-        body { margin: 0; background: #001219; color: #fff; font-family: sans-serif; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        
-        /* The Postcard: Shown immediately */
-        #postcard { 
-            width: 800px; height: 500px; 
-            background: url("AAVLCompletionPostcard.png") center/cover no-repeat; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            border: 4px solid #33C7BE; border-radius: 10px; position: relative;
+        /* Setup for the Exhibition Monitor */
+        body { 
+            margin: 0; background: #001219; color: #fff; 
+            font-family: 'Montserrat', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 100vh; overflow-x: hidden;
         }
 
-        /* Overlay text styling */
-        .cert-info { background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; width: 70%; }
-        #display-name { font-size: 3rem; font-weight: bold; display: block; margin: 10px 0; color: #FFD700; }
-        .date-text { font-size: 1.2rem; color: #33C7BE; font-weight: bold; }
+        /* THE POSTCARD - No Cropping */
+        #postcard { 
+            width: 800px; height: 500px; 
+            background: url("AAVLCompletionPostcard.png") no-repeat;
+            background-size: 100% 100%; /* Fits image exactly to 800x500 */
+            position: relative; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 8px;
+        }
 
-        /* Centered User Input & QR Area */
-        .controls { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        #qrcode { background: white; padding: 10px; border-radius: 5px; display: none; } /* Hidden until name entered */
-        input { padding: 15px; font-size: 1.3rem; border-radius: 8px; border: none; width: 350px; text-align: center; }
+        /* POSITION THE NAME: Adjust 'top' and 'left' to fit your drawing's lines */
+        #display-name { 
+            position: absolute; 
+            top: 50%; /* Adjust this % to move name up/down */
+            left: 50%; /* Adjust this % to move name left/right */
+            transform: translate(-50%, -50%);
+            font-size: 3rem; font-weight: bold; color: #000; /* Change to #fff if your PNG is dark */
+            text-align: center; width: 80%;
+        }
+
+        /* POSITION THE DATE: Adjust 'top' and 'left' to fit your drawing's lines */
+        #current-date { 
+            position: absolute; 
+            top: 85%; /* Adjust this % to move date up/down */
+            left: 70%; /* Adjust this % to move date left/right */
+            font-size: 1.2rem; font-weight: bold; color: #000;
+        }
+
+        /* MONITOR UI CONTROLS */
+        .controls { 
+            margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; 
+        }
         
-        .hidden { display: none !important; }
-        #btn-download { background: #F26B38; color: white; border: none; padding: 20px 40px; border-radius: 8px; font-size: 1.5rem; cursor: pointer; display: none; }
+        input { 
+            padding: 15px; font-size: 1.3rem; border-radius: 8px; border: 2px solid #33C7BE; 
+            width: 350px; text-align: center; background: #002535; color: white;
+        }
+
+        #qrcode { background: white; padding: 10px; border-radius: 5px; display: none; }
+
+        /* PHONE VIEW ELEMENTS */
+        #mobile-ui { display: none; margin-top: 20px; }
+        .dl-btn { 
+            background: #F26B38; color: white; border: none; padding: 20px 40px; 
+            border-radius: 8px; font-size: 1.5rem; cursor: pointer; font-weight: bold; 
+        }
     </style>
 </head>
 <body>
 
-<!-- 1. The Postcard (Always Visible) -->
-<div id="postcard">
-    <div class="cert-info">
-        <h1 style="margin:0; font-size: 2rem;">OCEAN GIANT AMBASSADOR</h1>
-        <span id="display-name">YOUR NAME</span>
-        <p>Successfully completed the Ocean Giants Challenge</p>
-        <p class="date-text">Date: <span id="current-date"></span></p>
+    <!-- 1. The Visual Postcard -->
+    <div id="postcard">
+        <span id="display-name"></span>
+        <span id="current-date"></span>
     </div>
-</div>
 
-<!-- 2. Monitor UI: Name Input & QR Generation -->
-<div class="controls" id="monitor-ui">
-    <p>Please enter your name to receive your certificate:</p>
-    <input type="text" id="username" placeholder="Type your name here..." oninput="generateAmbassadorQR()">
-    <div id="qrcode"></div>
-    <p id="qr-instruction" style="display:none; font-size: 0.9rem;">Scan the code above to save this to your phone!</p>
-</div>
+    <!-- 2. Monitor Interaction Area -->
+    <div class="controls" id="monitor-ui">
+        <p>Type your name to generate your Ambassador Certificate:</p>
+        <input type="text" id="username" placeholder="Enter Name..." oninput="updateAmbassador()">
+        <div id="qrcode"></div>
+        <p id="instruction" style="display:none; font-size: 0.9rem; color: #33C7BE;">Scan to download to your phone!</p>
+    </div>
 
-<!-- 3. Phone UI: Download Button (Hidden on Monitor) -->
-<div id="mobile-ui" style="margin-top: 20px;">
-    <button id="btn-download" onclick="downloadCert()">💾 SAVE CERTIFICATE</button>
-</div>
+    <!-- 3. Phone Download Button (Hidden on Monitor) -->
+    <div id="mobile-ui">
+        <button class="dl-btn" onclick="downloadCert()">💾 SAVE CERTIFICATE</button>
+    </div>
 
-<!-- Libraries -->
-<script src="https://cdnjs.cloudflare.com"></script>
-<script src="https://cdnjs.cloudflare.com"></script>
+    <!-- Script Libraries -->
+    <script src="https://cdnjs.cloudflare.com"></script>
+    <script src="https://cdnjs.cloudflare.com"></script>
 
-<script>
-    const nameDisplay = document.getElementById("display-name");
-    const qrcodeContainer = document.getElementById("qrcode");
-    const qrInstruction = document.getElementById("qr-instruction");
-    const qrcode = new QRCode(qrcodeContainer, { width: 160, height: 160 });
+    <script>
+        const nameDisplay = document.getElementById("display-name");
+        const dateDisplay = document.getElementById("current-date");
+        const qrcodeContainer = document.getElementById("qrcode");
+        const qrcode = new QRCode(qrcodeContainer, { width: 150, height: 150 });
 
-    // Set Date Automatically 2026
-    document.getElementById("current-date").textContent = new Date().toLocaleDateString("en-HK", {
-        day: 'numeric', month: 'long', year: 'numeric'
-    });
-
-    window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('name')) {
-            // MOBILE MODE: Show only postcard and download button
-            nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
-            document.getElementById("monitor-ui").style.display = "none";
-            document.getElementById("btn-download").style.display = "block";
-        }
-    };
-
-    function generateAmbassadorQR() {
-        const val = document.getElementById("username").value;
-        if (val.trim().length > 0) {
-            nameDisplay.textContent = val.toUpperCase();
-            qrcodeContainer.style.display = "block";
-            qrInstruction.style.display = "block";
-            
-            // Create link for phone
-            const baseUrl = window.location.href.split('?')[0];
-            qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(val)}`);
-        } else {
-            nameDisplay.textContent = "YOUR NAME";
-            qrcodeContainer.style.display = "none";
-            qrInstruction.style.display = "none";
-        }
-    }
-
-    function downloadCert() {
-        html2canvas(document.getElementById("postcard"), { useCORS: true }).then(canvas => {
-            const link = document.createElement("a");
-            link.download = "Ocean-Giant-Ambassador.png";
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+        // Auto-set the Date (Hong Kong Format)
+        dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
+            day: 'numeric', month: 'short', year: 'numeric'
         });
-    }
-</script>
+
+        // Detect if user opened the link from a QR scan
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('name')) {
+                nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
+                document.getElementById("monitor-ui").style.display = "none";
+                document.getElementById("mobile-ui").style.display = "block";
+            }
+        };
+
+        function updateAmbassador() {
+            const val = document.getElementById("username").value;
+            nameDisplay.textContent = val.toUpperCase();
+            
+            if (val.trim().length > 0) {
+                qrcodeContainer.style.display = "block";
+                document.getElementById("instruction").style.display = "block";
+                
+                // Create the personalized link for the scan
+                const baseUrl = window.location.href.split('?')[0];
+                qrcode.makeCode(`${baseUrl}?name=${encodeURIComponent(val)}`);
+            } else {
+                qrcodeContainer.style.display = "none";
+                document.getElementById("instruction").style.display = "none";
+            }
+        }
+
+        function downloadCert() {
+            // useCORS is essential for GitHub hosted images
+            html2canvas(document.getElementById("postcard"), { useCORS: true, scale: 2 }).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "Ocean-Giants-Ambassador.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
+    </script>
 </body>
-</html>
 </html>
