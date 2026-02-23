@@ -1,92 +1,104 @@
 <!DOCTYPE html>
 <html lang="en-HK">
 <head>
-    <meta charset="UTF-8">
-    <title>Ocean Giants Ambassador</title>
-    <style>
-        body { margin: 0; background: #001219; color: #fff; font-family: sans-serif; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        #postcard { width: 800px; height: 500px; background: url("AAVLCompletionPostcard.png") no-repeat; background-size: 100% 100%; position: relative; border: 2px solid #33C7BE; }
-        #display-name { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; font-weight: bold; color: #fff; text-shadow: 2px 2px 4px #000; }
-        #display-date { position: absolute; top: 75%; left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem; font-weight: bold; color: #fff; }
-        .controls { margin-top: 20px; }
-        #qr-box { background: white; padding: 15px; margin-top: 15px; display: none; border-radius: 10px; }
-        #mobile-ui { display: none; }
-        .error-msg { font-size: 2rem; color: #F26B38; }
-    </style>
+<meta charset="UTF-8">
+<title>Ocean Giants Ambassador</title>
+<style>
+body {
+  margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
+}
+#postcard {
+  width:800px; height:500px; background:url("AAVLCompletionPostcard.png") no-repeat;
+  background-size:100% 100%; border:2px solid #33C7BE; border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5); position:relative;
+}
+#display-name {
+  position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
+  font-size:3.5rem; font-weight:bold; color:#fff; text-shadow:3px 3px 6px rgba(0,0,0,0.8);
+}
+#display-date {
+  position:absolute; top:75%; left:50%; transform:translate(-50%,-50%);
+  font-size:1.4rem; font-weight:bold; color:#fff; text-shadow:2px 2px 4px rgba(0,0,0,0.8);
+}
+.controls{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:15px;}
+input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
+      width:400px;text-align:center;background:#002535;color:white;}
+.gen-btn{background:#F26B38;color:white;border:none;padding:15px 30px;border-radius:8px;
+      font-size:1.2rem;cursor:pointer;font-weight:bold;}
+#qrcode-container{background:white;padding:20px;border-radius:10px;
+      display:none;flex-direction:column;align-items:center;margin-top:20px;}
+#qr-image{width:200px;height:200px;}
+#mobile-download-btn{display:none;margin-top:20px;background:#33C7BE;color:#001219;
+      padding:20px 40px;border:none;border-radius:10px;font-size:1.8rem;font-weight:bold;}
+.error-msg{font-size:2rem;color:#F26B38;text-align:center;}
+</style>
 </head>
 <body>
 
-    <div id="postcard">
-        <span id="display-name"></span>
-        <span id="display-date"></span>
-    </div>
+<div id="postcard">
+  <span id="display-name"></span>
+  <span id="display-date"></span>
+</div>
 
-    <!-- Monitor View -->
-    <div class="controls" id="monitor-ui">
-        <input type="text" id="username" placeholder="ENTER NAME" oninput="updateName()" style="padding:10px; font-size:1.2rem;">
-        <button onclick="generateExpiringQR()" style="padding:10px 20px; font-size:1.2rem; cursor:pointer;">GENERATE QR</button>
-        <div id="qr-box">
-            <img id="qr-img" src="" style="width:200px; height:200px;">
-            <p style="color:#000; font-weight:bold;">Scan to save! (Expires in 5m)</p>
-        </div>
-    </div>
+<div class="controls" id="monitor-ui">
+  <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
+  <button type="button" class="gen-btn" onclick="generateQR()">GENERATE QR</button>
 
-    <!-- Mobile View -->
-    <div id="mobile-ui">
-        <button onclick="downloadImage()" style="padding:20px; font-size:1.5rem; background:#33C7BE; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">💾 SAVE TO PHONE</button>
-    </div>
+  <div id="qrcode-container">
+    <img id="qr-image" src="" alt="QR Code">
+    <p style="color:#000;font-size:1rem;margin-top:10px;font-weight:bold;">SCAN TO SAVE TO PHONE</p>
+  </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com"></script>
-    <script>
-        const nameDisplay = document.getElementById("display-name");
-        const dateDisplay = document.getElementById("display-date");
+<button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-        dateDisplay.textContent = new Date().toLocaleDateString("en-HK", { day:'numeric', month:'short', year:'numeric' });
+<!-- ✅ load the REQUIRED library properly -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-        window.onload = () => {
-            const params = new URLSearchParams(window.location.search);
-            if (params.has('name') && params.has('t')) {
-                const sentTime = parseInt(params.get('t'));
-                const now = Date.now();
-                
-                // 5 Minute Expiry (300,000 milliseconds)
-                if (now - sentTime > 300000) {
-                    document.body.innerHTML = "<h1 class='error-msg'>QR Link Expired</h1><p>Please re-scan at the monitor.</p>";
-                    return;
-                }
+<script>
+const nameDisplay=document.getElementById("display-name");
+const dateDisplay=document.getElementById("display-date");
+const qrContainer=document.getElementById("qrcode-container");
+const qrImage=document.getElementById("qr-image");
 
-                nameDisplay.textContent = decodeURIComponent(params.get('name')).toUpperCase();
-                document.getElementById("monitor-ui").style.display = "none";
-                document.getElementById("mobile-ui").style.display = "block";
-            }
-        };
+// show today's date
+dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
 
-        function updateName() {
-            nameDisplay.textContent = document.getElementById("username").value.toUpperCase();
-            document.getElementById("qr-box").style.display = "none";
-        }
+// decide view mode
+window.onload=()=>{
+  const params=new URLSearchParams(window.location.search);
+  if(params.has('name')){
+    nameDisplay.textContent=decodeURIComponent(params.get('name')).toUpperCase();
+    document.getElementById("monitor-ui").style.display="none";
+    document.getElementById("mobile-download-btn").style.display="block";
+  }
+};
 
-        function generateExpiringQR() {
-            const name = document.getElementById("username").value.trim();
-            if (!name) return alert("Enter name first");
+function updatePreview(){
+  nameDisplay.textContent=document.getElementById("username").value.toUpperCase();
+  qrContainer.style.display="none";
+}
 
-            const timestamp = Date.now();
-            const cleanUrl = window.location.origin + window.location.pathname;
-            const finalLink = `${cleanUrl}?name=${encodeURIComponent(name)}&t=${timestamp}`;
-            
-            // Using [QuickChart API](https://quickchart.io) - Very fast & reliable
-            document.getElementById("qr-img").src = `https://quickchart.ioqr?text=${encodeURIComponent(finalLink)}&size=200`;
-            document.getElementById("qr-box").style.display = "block";
-        }
+function generateQR(){
+  const nameVal=document.getElementById("username").value.trim();
+  if(!nameVal){alert("Please enter your name first!");return;}
+  const cleanUrl=window.location.origin+window.location.pathname;
+  const finalLink=`${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
 
-        function downloadImage() {
-            html2canvas(document.getElementById("postcard"), { useCORS: true, scale: 3 }).then(canvas => {
-                const link = document.createElement("a");
-                link.download = "Ocean-Ambassador.png";
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
-    </script>
+  // ✅ Correct QRServer API usage
+  qrImage.src=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(finalLink)}&size=200x200`;
+  qrContainer.style.display="flex";
+}
+
+function downloadImage(){
+  html2canvas(document.getElementById("postcard"),{useCORS:true,scale:3}).then(canvas=>{
+    const link=document.createElement("a");
+    link.download="Ocean-Giant-Ambassador.png";
+    link.href=canvas.toDataURL("image/png");
+    link.click();
+  });
+}
+</script>
 </body>
 </html>
