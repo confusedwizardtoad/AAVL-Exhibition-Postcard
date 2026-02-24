@@ -8,6 +8,26 @@ body {
   margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
   display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
 }
+
+/* 🟢 new EXIT button style */
+#exit-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  background: #F26B38;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: background 0.3s;
+}
+#exit-btn:hover { background:#d95d2e; }
+  
 #postcard {
   width:800px; height:500px; background:url("AAVLCompletionPostcard.png") no-repeat;
   background-size:100% 100%; border:2px solid #33C7BE; border-radius:12px;
@@ -35,7 +55,8 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
 </style>
 </head>
 <body>
-
+<!-- EXIT BUTTON -->
+<button id="exit-btn" onclick="exitPage()">×</button>
 <div id="postcard">
   <span id="display-name"></span>
   <span id="display-date"></span>
@@ -99,6 +120,13 @@ function downloadImage(){
     link.click();
   });
 }
+
+/* 🟢 small function for the X button */
+function exitPage(){
+  window.location.href = "https://www.AHHHHHH";
+}
+
+  
 </script>
 </body>
 </html>
