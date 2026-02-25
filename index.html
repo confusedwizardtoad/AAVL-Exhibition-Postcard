@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Ocean Giants Ambassador</title>
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net">
-  
 <style>
 body {
   margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
@@ -56,29 +53,22 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
       padding:20px 40px;border:none;border-radius:10px;font-size:1.8rem;font-weight:bold;}
 .error-msg{font-size:2rem;color:#F26B38;text-align:center;}
 
-body {
-  padding-bottom: 300px; /* Gives space so the keyboard doesn't overlap the UI */
-}
-
+/* Virtual Keyboard Styles */
 .simple-keyboard {
-  position: fixed; 
-  bottom: 0; 
-  left: 0; 
-  width: 100%;
-  background-color: #002535 !important; /* Matches your input background */
-  color: #000 !important; /* Key text color */
-  z-index: 9999;
+  background: #002535;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
-
-/* Hide keyboard on mobile view */
-#mobile-download-btn:not([style*="display: none"]) ~ .simple-keyboard {
-  display: none !important;
+.simple-keyboard .hg-button {
+  background: #33C7BE;
+  color: #001219;
+  border-radius: 5px;
+  margin: 5px;
+  font-size: 1.2rem;
 }
-
-
-
-
 </style>
+<!-- Include Simple Keyboard CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css">
 </head>
 <body>
 <!-- EXIT BUTTON -->
@@ -98,15 +88,16 @@ body {
   </div>
 </div>
 
-<div class="simple-keyboard" id="keyboard-container"></div>
-
 <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
+
+<!-- Virtual Keyboard Container -->
+<div id="keyboard"></div>
 
 <!-- ✅ load the REQUIRED library properly -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- Include Simple Keyboard JS -->
+<script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
 
-<script src="https://cdn.jsdelivr.net"></script>
-  
 <script>
 const nameDisplay=document.getElementById("display-name");
 const dateDisplay=document.getElementById("display-date");
@@ -116,27 +107,6 @@ const qrImage=document.getElementById("qr-image");
 // show today's date
 dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
 
-let Keyboard = window.SimpleKeyboard.default;
-let myKeyboard = new Keyboard({
-  onChange: input => {
-    document.getElementById("username").value = input;
-    updatePreview();
-  },
-  layout: {
-    'default': [
-      'Q W E R T Y U I O P',
-      'A S D F G H J K L',
-      'Z X C V B N M {bksp}',
-      '{space}'
-    ]
-  }
-});
-
-
-document.getElementById("username").addEventListener("input", event => {
-  myKeyboard.setInput(event.target.value);
-});
-  
 // decide view mode
 window.onload=()=>{
   const params=new URLSearchParams(window.location.search);
@@ -177,7 +147,32 @@ function exitPage(){
   window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site/";
 }
 
-  
+// Initialize Simple Keyboard
+const Keyboard = window.SimpleKeyboard.default;
+const myKeyboard = new Keyboard({
+  onChange: input => onChange(input),
+  onKeyPress: button => onKeyPress(button),
+  theme: "hg-theme-default hg-layout-default simple-keyboard",
+  layout: {
+    default: [
+      "q w e r t y u i o p",
+      "a s d f g h j k l",
+      "z x c v b n m",
+      "{space}"
+    ]
+  }
+});
+
+function onChange(input) {
+  document.querySelector("#username").value = input;
+  updatePreview();
+}
+
+function onKeyPress(button) {
+  if (button === "{space}") {
+    myKeyboard.setInput(myKeyboard.getInput() + " ");
+  }
+}
 </script>
 </body>
 </html>
