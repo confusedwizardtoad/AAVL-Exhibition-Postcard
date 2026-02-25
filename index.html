@@ -58,6 +58,7 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
   background: #002535;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  margin-top: 20px;
 }
 .simple-keyboard .hg-button {
   background: #33C7BE;
@@ -117,6 +118,35 @@ window.onload=()=>{
   }
 };
 
+// Initialize Simple Keyboard
+document.addEventListener("DOMContentLoaded", function() {
+  const Keyboard = window.SimpleKeyboard.default;
+  const myKeyboard = new Keyboard({
+    onChange: input => onChange(input),
+    onKeyPress: button => onKeyPress(button),
+    theme: "hg-theme-default hg-layout-default simple-keyboard",
+    layout: {
+      default: [
+        "q w e r t y u i o p",
+        "a s d f g h j k l",
+        "z x c v b n m",
+        "{space}"
+      ]
+    }
+  });
+
+  function onChange(input) {
+    document.querySelector("#username").value = input;
+    updatePreview();
+  }
+
+  function onKeyPress(button) {
+    if (button === "{space}") {
+      myKeyboard.setInput(myKeyboard.getInput() + " ");
+    }
+  }
+});
+
 function updatePreview(){
   nameDisplay.textContent=document.getElementById("username").value.toUpperCase();
   qrContainer.style.display="none";
@@ -145,33 +175,6 @@ function downloadImage(){
 /* 🟢 small function for the X button */
 function exitPage(){
   window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site/";
-}
-
-// Initialize Simple Keyboard
-const Keyboard = window.SimpleKeyboard.default;
-const myKeyboard = new Keyboard({
-  onChange: input => onChange(input),
-  onKeyPress: button => onKeyPress(button),
-  theme: "hg-theme-default hg-layout-default simple-keyboard",
-  layout: {
-    default: [
-      "q w e r t y u i o p",
-      "a s d f g h j k l",
-      "z x c v b n m",
-      "{space}"
-    ]
-  }
-});
-
-function onChange(input) {
-  document.querySelector("#username").value = input;
-  updatePreview();
-}
-
-function onKeyPress(button) {
-  if (button === "{space}") {
-    myKeyboard.setInput(myKeyboard.getInput() + " ");
-  }
 }
 </script>
 </body>
