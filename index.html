@@ -2,8 +2,6 @@
 <html lang="en-HK">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' https://api.qrserver.com data:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline';">
 <title>Ocean Giants Ambassador</title>
 <style>
 body {
@@ -85,11 +83,6 @@ const dateDisplay=document.getElementById("display-date");
 const qrContainer=document.getElementById("qrcode-container");
 const qrImage=document.getElementById("qr-image");
 
-function sanitizeName(name) {
-  // allow only letters, numbers, spaces, dashes, apostrophes
-  return name.replace(/[^a-zA-Z0-9\s\-']/g, '').trim();
-}
-
 // show today's date
 dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
 
@@ -104,21 +97,15 @@ window.onload=()=>{
 };
 
 function updatePreview(){
-  const raw = document.getElementById("username").value;
-  const safe = sanitizeName(raw);
-  if (safe.length > 30) { alert("Name too long"); return; }
-  nameDisplay.textContent = safe.toUpperCase();
+  nameDisplay.textContent=document.getElementById("username").value.toUpperCase();
   qrContainer.style.display="none";
 }
 
 function generateQR(){
-  const raw = document.getElementById("username").value.trim();
-  const safe = sanitizeName(raw);
-  if (!safe) { alert("Please enter your name first!"); return; }
-  if (safe.length > 30) { alert("Name too long"); return; }
-
-const cleanUrl = window.location.origin + window.location.pathname;
-const finalLink = `${cleanUrl}?name=${encodeURIComponent(safe)}`;
+  const nameVal=document.getElementById("username").value.trim();
+  if(!nameVal){alert("Please enter your name first!");return;}
+  const cleanUrl=window.location.origin+window.location.pathname;
+  const finalLink=`${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
 
   // ✅ Correct QRServer API usage
   qrImage.src=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(finalLink)}&size=200x200`;
