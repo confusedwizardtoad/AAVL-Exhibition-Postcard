@@ -3,28 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <title>Ocean Giants Ambassador</title>
+<!-- 1. Include Simple Keyboard CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net">
 <style>
 body {
   margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
   display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
+  padding-bottom: 20px;
 }
 
-/* 🟢 new EXIT button style */
+/* EXIT button style */
 #exit-btn {
-  position: fixed;
-  top: 15px;
-  right: 20px;
-  background: #F26B38;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  transition: background 0.3s;
+  position: fixed; top: 15px; right: 20px; background: #F26B38; color: white; border: none;
+  border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; font-weight: bold;
+  cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 1000;
 }
 #exit-btn:hover { background:#d95d2e; }
   
@@ -33,54 +25,66 @@ body {
   background-size:100% 100%; border:2px solid #33C7BE; border-radius:12px;
   box-shadow:0 10px 30px rgba(0,0,0,0.5); position:relative;
 }
+
+/* WHITE TEXT: Name (40%) and Date (75%) */
 #display-name {
   position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
   font-size:3.5rem; font-weight:bold; color:#fff; text-shadow:3px 3px 6px rgba(0,0,0,0.8);
+  text-align: center; width: 90%;
 }
 #display-date {
   position:absolute; top:75%; left:50%; transform:translate(-50%,-50%);
   font-size:1.4rem; font-weight:bold; color:#fff; text-shadow:2px 2px 4px rgba(0,0,0,0.8);
+  text-align: center; width: 90%;
 }
+
 .controls{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:15px;}
 input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
       width:400px;text-align:center;background:#002535;color:white;}
 .gen-btn{background:#F26B38;color:white;border:none;padding:15px 30px;border-radius:8px;
       font-size:1.2rem;cursor:pointer;font-weight:bold;}
+
 #qrcode-container{background:white;padding:20px;border-radius:10px;
       display:none;flex-direction:column;align-items:center;margin-top:20px;}
 #qr-image{width:200px;height:200px;}
-#mobile-download-btn{display:none;margin-top:20px;background:#33C7BE;color:#001219;
-      padding:20px 40px;border:none;border-radius:10px;font-size:1.8rem;font-weight:bold;}
-.error-msg{font-size:2rem;color:#F26B38;text-align:center;}
 
-/* Virtual Keyboard Styles */
-.simple-keyboard {
-  background: #002535;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  margin-top: 20px;
+#mobile-download-btn {
+  display:none; margin-top:20px; background:#33C7BE; color:#001219;
+  padding:20px 40px; border:none; border-radius:10px; font-size:1.8rem; font-weight:bold;
 }
-.simple-keyboard .hg-button {
-  background: #33C7BE;
-  color: #001219;
-  border-radius: 5px;
-  margin: 5px;
-  font-size: 1.2rem;
+
+/* 2. TEAL VIRTUAL KEYBOARD STYLING */
+.simple-keyboard {
+  background-color: #002535 !important;
+  width: 800px;
+  margin-top: 25px;
+  border-radius: 10px;
+}
+.hg-theme-default .hg-button {
+  background: #33C7BE !important; /* Teal keys */
+  color: #001219 !important;
+  height: 55px !important;
+  font-weight: bold;
+  font-size: 1.2rem !important;
+  border-bottom: 3px solid #28a19a !important;
+}
+.hg-theme-default .hg-button:active {
+  background: #F26B38 !important; /* Orange when pressed */
+  color: white !important;
 }
 </style>
-<!-- Include Simple Keyboard CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css">
 </head>
 <body>
-<!-- EXIT BUTTON -->
+
 <button id="exit-btn" onclick="exitPage()">×</button>
+
 <div id="postcard">
   <span id="display-name"></span>
   <span id="display-date"></span>
 </div>
 
 <div class="controls" id="monitor-ui">
-  <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
+  <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="syncToKeyboard()">
   <button type="button" class="gen-btn" onclick="generateQR()">GENERATE QR</button>
 
   <div id="qrcode-container">
@@ -89,77 +93,84 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
   </div>
 </div>
 
+<!-- Virtual Keyboard Container -->
+<div class="simple-keyboard" id="keyboard-wrapper"></div>
+
 <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-<!-- Virtual Keyboard Container -->
-<div id="keyboard"></div>
-
-<!-- ✅ load the REQUIRED library properly -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<!-- Include Simple Keyboard JS -->
-<script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net"></script>
+<!-- 3. Include Simple Keyboard JS -->
+<script src="https://cdn.jsdelivr.net"></script>
 
 <script>
 const nameDisplay=document.getElementById("display-name");
 const dateDisplay=document.getElementById("display-date");
 const qrContainer=document.getElementById("qrcode-container");
 const qrImage=document.getElementById("qr-image");
+const nameInput=document.getElementById("username");
 
-// show today's date
+// Set Date
 dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
 
-// decide view mode
+// 4. Initialize Virtual Keyboard
+let Keyboard = window.SimpleKeyboard.default;
+let myKeyboard;
+
+document.addEventListener("DOMContentLoaded", function() {
+  myKeyboard = new Keyboard({
+    onChange: input => {
+      nameInput.value = input;
+      updatePreview();
+    },
+    layout: {
+      default: [
+        "Q W E R T Y U I O P",
+        "A S D F G H J K L",
+        "Z X C V B N M {bksp}",
+        "{space}"
+      ]
+    },
+    display: {
+      '{bksp}': 'Delete',
+      '{space}': 'Space'
+    }
+  });
+});
+
+// Sync physical typing to virtual keyboard
+function syncToKeyboard() {
+  if (myKeyboard) myKeyboard.setInput(nameInput.value);
+  updatePreview();
+}
+
+// View mode logic
 window.onload=()=>{
   const params=new URLSearchParams(window.location.search);
   if(params.has('name')){
     nameDisplay.textContent=decodeURIComponent(params.get('name')).toUpperCase();
     document.getElementById("monitor-ui").style.display="none";
     document.getElementById("mobile-download-btn").style.display="block";
+    document.getElementById("keyboard-wrapper").style.display="none"; // Hide keyboard on phone
+    document.getElementById("exit-btn").style.display="none"; // Hide exit on phone
   }
 };
 
-// Initialize Simple Keyboard
-document.addEventListener("DOMContentLoaded", function() {
-  const Keyboard = window.SimpleKeyboard.default;
-  const myKeyboard = new Keyboard({
-    onChange: input => onChange(input),
-    onKeyPress: button => onKeyPress(button),
-    theme: "hg-theme-default hg-layout-default simple-keyboard",
-    layout: {
-      default: [
-        "q w e r t y u i o p",
-        "a s d f g h j k l",
-        "z x c v b n m",
-        "{space}"
-      ]
-    }
-  });
-
-  function onChange(input) {
-    document.querySelector("#username").value = input;
-    updatePreview();
-  }
-
-  function onKeyPress(button) {
-    if (button === "{space}") {
-      myKeyboard.setInput(myKeyboard.getInput() + " ");
-    }
-  }
-});
-
 function updatePreview(){
-  nameDisplay.textContent=document.getElementById("username").value.toUpperCase();
+  nameDisplay.textContent=nameInput.value.toUpperCase();
   qrContainer.style.display="none";
 }
 
 function generateQR(){
-  const nameVal=document.getElementById("username").value.trim();
+  const nameVal=nameInput.value.trim();
   if(!nameVal){alert("Please enter your name first!");return;}
-  const cleanUrl=window.location.origin+window.location.pathname;
+  
+  // Use current page URL to create the QR link
+  const cleanUrl = window.location.origin + window.location.pathname;
   const finalLink=`${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
 
-  // ✅ Correct QRServer API usage
-  qrImage.src=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(finalLink)}&size=200x200`;
+  // Correct QRServer API usage
+  qrImage.src=`https://api.qrserver.com{encodeURIComponent(finalLink)}&size=200x200`;
   qrContainer.style.display="flex";
 }
 
@@ -172,9 +183,8 @@ function downloadImage(){
   });
 }
 
-/* 🟢 small function for the X button */
 function exitPage(){
-  window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site/";
+  window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site";
 }
 </script>
 </body>
