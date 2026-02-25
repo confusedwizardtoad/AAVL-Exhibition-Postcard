@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Ocean Giants Ambassador</title>
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net">
+  
 <style>
 body {
   margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
@@ -52,6 +55,29 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
 #mobile-download-btn{display:none;margin-top:20px;background:#33C7BE;color:#001219;
       padding:20px 40px;border:none;border-radius:10px;font-size:1.8rem;font-weight:bold;}
 .error-msg{font-size:2rem;color:#F26B38;text-align:center;}
+
+body {
+  padding-bottom: 300px; /* Gives space so the keyboard doesn't overlap the UI */
+}
+
+.simple-keyboard {
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  width: 100%;
+  background-color: #002535 !important; /* Matches your input background */
+  color: #000 !important; /* Key text color */
+  z-index: 9999;
+}
+
+/* Hide keyboard on mobile view */
+#mobile-download-btn:not([style*="display: none"]) ~ .simple-keyboard {
+  display: none !important;
+}
+
+
+
+
 </style>
 </head>
 <body>
@@ -72,11 +98,15 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
   </div>
 </div>
 
+<div class="simple-keyboard" id="keyboard-container"></div>
+
 <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
 <!-- ✅ load the REQUIRED library properly -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net"></script>
+  
 <script>
 const nameDisplay=document.getElementById("display-name");
 const dateDisplay=document.getElementById("display-date");
@@ -86,6 +116,27 @@ const qrImage=document.getElementById("qr-image");
 // show today's date
 dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
 
+let Keyboard = window.SimpleKeyboard.default;
+let myKeyboard = new Keyboard({
+  onChange: input => {
+    document.getElementById("username").value = input;
+    updatePreview();
+  },
+  layout: {
+    'default': [
+      'Q W E R T Y U I O P',
+      'A S D F G H J K L',
+      'Z X C V B N M {bksp}',
+      '{space}'
+    ]
+  }
+});
+
+
+document.getElementById("username").addEventListener("input", event => {
+  myKeyboard.setInput(event.target.value);
+});
+  
 // decide view mode
 window.onload=()=>{
   const params=new URLSearchParams(window.location.search);
