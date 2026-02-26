@@ -5,65 +5,81 @@
 <title>Ocean Giants Ambassador</title>
 <style>
   body {
-    margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
+    margin:0; background:#0a2669; color:#ffffff; font-family:'Arial Rounded MT Bold', sans-serif;
     display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
     padding: 20px;
   }
 
-  /* EXIT button style */
+  /* EXIT button - Mid Blue with Mint border */
   #exit-btn {
-    position: fixed; top: 15px; right: 20px; background: #F26B38; color: white; border: none;
+    position: fixed; top: 15px; right: 20px; background: #26598c; color: #ffffff; border: 2px solid #bae8e5;
     border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; font-weight: bold;
     cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 1000;
   }
   
   #postcard {
     width:800px; height:500px; background:url("AAVLCompletionPostcard.png") no-repeat;
-    background-size:100% 100%; border:2px solid #33C7BE; border-radius:12px;
+    background-size:100% 100%; border:3px solid #26598c; border-radius:12px;
     box-shadow:0 10px 30px rgba(0,0,0,0.5); position:relative; flex-shrink: 0;
   }
 
   #display-name {
     position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
-    font-size:3.5rem; font-weight:bold; color:#fff; text-shadow:3px 3px 6px rgba(0,0,0,0.8);
+    font-size:3.5rem; font-weight:bold; color:#ffffff; text-shadow:3px 3px 6px rgba(0,0,0,0.8);
     text-align: center; width: 90%;
   }
   #display-date {
     position:absolute; top:75%; left:50%; transform:translate(-50%,-50%);
-    font-size:1.4rem; font-weight:bold; color:#fff; text-shadow:2px 2px 4px rgba(0,0,0,0.8);
+    font-size:1.4rem; font-weight:bold; color:#ffffff; text-shadow:2px 2px 4px rgba(0,0,0,0.8);
     text-align: center; width: 90%;
   }
 
-  .controls{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .controls{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:12px;}
   
-  /* Readonly input: looks active, but doesn't trigger OS keyboard */
-  input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
-        width:400px;text-align:center;background:#002535;color:white; cursor: default;}
+  input {
+    padding:15px; font-size:1.5rem; border-radius:10px; border:3px solid #bae8e5;
+    width:420px; text-align:center; background:#0a2669; color:#ffffff; cursor: default;
+  }
 
-  .gen-btn{background:#F26B38;color:white;border:none;padding:15px 30px;border-radius:8px;
-        font-size:1.2rem;cursor:pointer;font-weight:bold; margin-top: 10px;}
+  .gen-btn {
+    background:#bae8e5; color:#0a2669; border:none; padding:15px 45px; border-radius:8px;
+    font-size:1.3rem; cursor:pointer; font-weight:bold; transition: 0.1s;
+    border-bottom: 5px solid #26598c; margin-top: 10px;
+  }
+  .gen-btn:active { transform: translateY(3px); border-bottom: none; }
 
-  #qrcode-container{background:white;padding:15px;border-radius:10px;
-        display:none;flex-direction:column;align-items:center;margin-top:15px;}
-  #qr-image{width:180px;height:180px;}
+  #qrcode-container {
+    background:white; padding:15px; border-radius:10px;
+    display:none; flex-direction:column; align-items:center; margin-top:15px;
+    border: 4px solid #bae8e5;
+  }
+  #qr-image { width:180px; height:180px; }
 
-  /* CUSTOM KEYBOARD STYLING */
+  /* CUSTOM KEYBOARD - Ocean Palette */
   #keyboard-container {
-    margin-top: 20px; background: #002535; padding: 15px; border-radius: 12px;
-    display: flex; flex-direction: column; gap: 8px; border: 1px solid #33C7BE;
+    background-color: #26598c; 
+    width: 820px; margin-top: 20px; border-radius: 15px;
+    padding: 15px; display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3); border: 1px solid #bae8e5;
   }
   .kb-row { display: flex; justify-content: center; gap: 6px; }
   .key {
-    background: #33C7BE; color: #001219; border: none; border-radius: 6px;
-    padding: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
-    min-width: 55px; height: 50px; transition: 0.1s;
+    background: #bae8e5; color: #0a2669; border: none; border-radius: 8px;
+    height: 55px; min-width: 65px; font-weight: bold; font-size: 1.2rem;
+    cursor: pointer; border-bottom: 4px solid #8ecac7; transition: 0.1s;
   }
-  .key:active { background: #F26B38; color: white; transform: translateY(2px); }
-  .back-key { background: #F26B38; color: white; min-width: 90px; }
-  .space-key { min-width: 300px; }
+  .key:active { background: #ffffff; transform: translateY(3px); border-bottom: none; }
+  
+  .back-key { 
+    background: #0a2669; color: #ffffff; min-width: 120px;
+    border-bottom: 4px solid #051a4a;
+  }
+  .space-key { min-width: 380px; }
 
-  #mobile-download-btn{display:none;margin-top:20px;background:#33C7BE;color:#001219;
-        padding:20px 40px;border:none;border-radius:10px;font-size:1.8rem;font-weight:bold;}
+  #mobile-download-btn {
+    display:none; margin-top:20px; background:#bae8e5; color:#0a2669;
+    padding:20px 40px; border:none; border-radius:10px; font-size:1.8rem; font-weight:bold;
+  }
 </style>
 </head>
 <body>
@@ -76,7 +92,6 @@
 </div>
 
 <div class="controls" id="monitor-ui">
-  <!-- 'readonly' prevents the Windows touch keyboard from appearing -->
   <input type="text" id="username" placeholder="ENTER YOUR NAME" readonly>
   
   <div id="keyboard-container">
@@ -122,13 +137,12 @@
 
   <div id="qrcode-container">
     <img id="qr-image" src="" alt="QR Code">
-    <p style="color:#000;font-size:0.9rem;margin-top:8px;font-weight:bold;">SCAN TO SAVE TO PHONE</p>
+    <p style="color:#0a2669; font-size:0.9rem; margin-top:10px; font-weight:bold;">SCAN TO SAVE TO PHONE</p>
   </div>
 </div>
 
 <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-<!-- html2canvas is needed for the download function -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
@@ -138,10 +152,8 @@ const qrContainer=document.getElementById("qrcode-container");
 const qrImage=document.getElementById("qr-image");
 const nameInput=document.getElementById("username");
 
-// Set Hong Kong Date
 dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
 
-// Handle Virtual Keyboard Press
 function press(key) {
   if (key === 'BK') {
     nameInput.value = nameInput.value.slice(0, -1);
@@ -155,7 +167,7 @@ function press(key) {
 
 function updatePreview(){
   nameDisplay.textContent=nameInput.value.toUpperCase();
-  qrContainer.style.display="none"; // Hide QR if name changes
+  qrContainer.style.display="none"; 
 }
 
 window.onload=()=>{
@@ -175,8 +187,8 @@ function generateQR(){
   const cleanUrl = window.location.origin + window.location.pathname;
   const finalLink=`${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
 
-  // Correct API Endpoint
-  qrImage.src=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(finalLink)}&size=200x200`;
+  // FIXED QR LOGIC: Using QuickChart as a more stable alternative
+  qrImage.src=`https://quickchart.io{encodeURIComponent(finalLink)}&size=200`;
   qrContainer.style.display="flex";
 }
 
