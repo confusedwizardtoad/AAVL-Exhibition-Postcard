@@ -4,92 +4,66 @@
 <meta charset="UTF-8">
 <title>Ocean Giants Ambassador</title>
 <style>
-body {
-  margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
-  display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
-  padding-bottom: 20px;
-}
+  body {
+    margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
+    padding: 20px;
+  }
 
-/* EXIT button style */
-#exit-btn {
-  position: fixed; top: 15px; right: 20px; background: #F26B38; color: white; border: none;
-  border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; font-weight: bold;
-  cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 1000;
-}
-#exit-btn:hover { background:#d95d2e; }
+  /* EXIT button style */
+  #exit-btn {
+    position: fixed; top: 15px; right: 20px; background: #F26B38; color: white; border: none;
+    border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; font-weight: bold;
+    cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 1000;
+  }
   
-#postcard {
-  width:800px; height:500px; background:url("AAVLCompletionPostcard.png") no-repeat;
-  background-size:100% 100%; border:2px solid #33C7BE; border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.5); position:relative;
-}
+  #postcard {
+    width:800px; height:500px; background:url("AAVLCompletionPostcard.png") no-repeat;
+    background-size:100% 100%; border:2px solid #33C7BE; border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5); position:relative; flex-shrink: 0;
+  }
 
-#display-name {
-  position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
-  font-size:3.5rem; font-weight:bold; color:#fff; text-shadow:3px 3px 6px rgba(0,0,0,0.8);
-  text-align: center; width: 90%;
-}
-#display-date {
-  position:absolute; top:75%; left:50%; transform:translate(-50%,-50%);
-  font-size:1.4rem; font-weight:bold; color:#fff; text-shadow:2px 2px 4px rgba(0,0,0,0.8);
-  text-align: center; width: 90%;
-}
+  #display-name {
+    position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
+    font-size:3.5rem; font-weight:bold; color:#fff; text-shadow:3px 3px 6px rgba(0,0,0,0.8);
+    text-align: center; width: 90%;
+  }
+  #display-date {
+    position:absolute; top:75%; left:50%; transform:translate(-50%,-50%);
+    font-size:1.4rem; font-weight:bold; color:#fff; text-shadow:2px 2px 4px rgba(0,0,0,0.8);
+    text-align: center; width: 90%;
+  }
 
-.controls{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:15px;}
+  .controls{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  
+  /* Readonly input: looks active, but doesn't trigger OS keyboard */
+  input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
+        width:400px;text-align:center;background:#002535;color:white; cursor: default;}
 
-/* readonly prevents the Windows system keyboard from popping up */
-input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
-      width:400px;text-align:center;background:#002535;color:white; cursor: default;}
+  .gen-btn{background:#F26B38;color:white;border:none;padding:15px 30px;border-radius:8px;
+        font-size:1.2rem;cursor:pointer;font-weight:bold; margin-top: 10px;}
 
-.gen-btn{background:#F26B38;color:white;border:none;padding:15px 30px;border-radius:8px;
-      font-size:1.2rem;cursor:pointer;font-weight:bold;}
+  #qrcode-container{background:white;padding:15px;border-radius:10px;
+        display:none;flex-direction:column;align-items:center;margin-top:15px;}
+  #qr-image{width:180px;height:180px;}
 
-#qrcode-container{background:white;padding:20px;border-radius:10px;
-      display:none;flex-direction:column;align-items:center;margin-top:20px;}
-#qr-image{width:200px;height:200px;}
+  /* CUSTOM KEYBOARD STYLING */
+  #keyboard-container {
+    margin-top: 20px; background: #002535; padding: 15px; border-radius: 12px;
+    display: flex; flex-direction: column; gap: 8px; border: 1px solid #33C7BE;
+  }
+  .kb-row { display: flex; justify-content: center; gap: 6px; }
+  .key {
+    background: #33C7BE; color: #001219; border: none; border-radius: 6px;
+    padding: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+    min-width: 55px; height: 50px; transition: 0.1s;
+  }
+  .key:active { background: #F26B38; color: white; transform: translateY(2px); }
+  .back-key { background: #F26B38; color: white; min-width: 90px; }
+  .space-key { min-width: 300px; }
 
-#mobile-download-btn {
-  display:none; margin-top:20px; background:#33C7BE; color:#001219;
-  padding:20px 40px; border:none; border-radius:10px; font-size:1.8rem; font-weight:bold;
-}
-
-/* CUSTOM TEAL VIRTUAL KEYBOARD */
-#keyboard-container {
-  background-color: #002535;
-  width: 800px;
-  margin-top: 25px;
-  border-radius: 10px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: 1px solid #33C7BE;
-}
-.kb-row {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-.key {
-  background: #33C7BE;
-  color: #001219;
-  border: none;
-  border-radius: 6px;
-  height: 55px;
-  min-width: 60px;
-  font-weight: bold;
-  font-size: 1.2rem;
-  cursor: pointer;
-  border-bottom: 3px solid #28a19a;
-}
-.key:active {
-  background: #F26B38;
-  color: white;
-  transform: translateY(2px);
-  border-bottom: none;
-}
-.back-key { background: #F26B38; color: white; min-width: 110px; }
-.space-key { min-width: 350px; }
+  #mobile-download-btn{display:none;margin-top:20px;background:#33C7BE;color:#001219;
+        padding:20px 40px;border:none;border-radius:10px;font-size:1.8rem;font-weight:bold;}
 </style>
 </head>
 <body>
@@ -102,44 +76,45 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
 </div>
 
 <div class="controls" id="monitor-ui">
+  <!-- 'readonly' prevents the Windows touch keyboard from appearing -->
   <input type="text" id="username" placeholder="ENTER YOUR NAME" readonly>
   
   <div id="keyboard-container">
     <div class="kb-row">
-      <button class="key" onclick="kPress('Q')">Q</button>
-      <button class="key" onclick="kPress('W')">W</button>
-      <button class="key" onclick="kPress('E')">E</button>
-      <button class="key" onclick="kPress('R')">R</button>
-      <button class="key" onclick="kPress('T')">T</button>
-      <button class="key" onclick="kPress('Y')">Y</button>
-      <button class="key" onclick="kPress('U')">U</button>
-      <button class="key" onclick="kPress('I')">I</button>
-      <button class="key" onclick="kPress('O')">O</button>
-      <button class="key" onclick="kPress('P')">P</button>
+      <button type="button" class="key" onclick="press('Q')">Q</button>
+      <button type="button" class="key" onclick="press('W')">W</button>
+      <button type="button" class="key" onclick="press('E')">E</button>
+      <button type="button" class="key" onclick="press('R')">R</button>
+      <button type="button" class="key" onclick="press('T')">T</button>
+      <button type="button" class="key" onclick="press('Y')">Y</button>
+      <button type="button" class="key" onclick="press('U')">U</button>
+      <button type="button" class="key" onclick="press('I')">I</button>
+      <button type="button" class="key" onclick="press('O')">O</button>
+      <button type="button" class="key" onclick="press('P')">P</button>
     </div>
     <div class="kb-row">
-      <button class="key" onclick="kPress('A')">A</button>
-      <button class="key" onclick="kPress('S')">S</button>
-      <button class="key" onclick="kPress('D')">D</button>
-      <button class="key" onclick="kPress('F')">F</button>
-      <button class="key" onclick="kPress('G')">G</button>
-      <button class="key" onclick="kPress('H')">H</button>
-      <button class="key" onclick="kPress('J')">J</button>
-      <button class="key" onclick="kPress('K')">K</button>
-      <button class="key" onclick="kPress('L')">L</button>
+      <button type="button" class="key" onclick="press('A')">A</button>
+      <button type="button" class="key" onclick="press('S')">S</button>
+      <button type="button" class="key" onclick="press('D')">D</button>
+      <button type="button" class="key" onclick="press('F')">F</button>
+      <button type="button" class="key" onclick="press('G')">G</button>
+      <button type="button" class="key" onclick="press('H')">H</button>
+      <button type="button" class="key" onclick="press('J')">J</button>
+      <button type="button" class="key" onclick="press('K')">K</button>
+      <button type="button" class="key" onclick="press('L')">L</button>
     </div>
     <div class="kb-row">
-      <button class="key" onclick="kPress('Z')">Z</button>
-      <button class="key" onclick="kPress('X')">X</button>
-      <button class="key" onclick="kPress('C')">C</button>
-      <button class="key" onclick="kPress('V')">V</button>
-      <button class="key" onclick="kPress('B')">B</button>
-      <button class="key" onclick="kPress('N')">N</button>
-      <button class="key" onclick="kPress('M')">M</button>
-      <button class="key back-key" onclick="kPress('DEL')">DELETE</button>
+      <button type="button" class="key" onclick="press('Z')">Z</button>
+      <button type="button" class="key" onclick="press('X')">X</button>
+      <button type="button" class="key" onclick="press('C')">C</button>
+      <button type="button" class="key" onclick="press('V')">V</button>
+      <button type="button" class="key" onclick="press('B')">B</button>
+      <button type="button" class="key" onclick="press('N')">N</button>
+      <button type="button" class="key" onclick="press('M')">M</button>
+      <button type="button" class="key back-key" onclick="press('BK')">DELETE</button>
     </div>
     <div class="kb-row">
-      <button class="key space-key" onclick="kPress(' ')">SPACE</button>
+      <button type="button" class="key space-key" onclick="press(' ')">SPACE</button>
     </div>
   </div>
 
@@ -147,14 +122,14 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
 
   <div id="qrcode-container">
     <img id="qr-image" src="" alt="QR Code">
-    <p style="color:#000;font-size:1rem;margin-top:10px;font-weight:bold;">SCAN TO SAVE TO PHONE</p>
+    <p style="color:#000;font-size:0.9rem;margin-top:8px;font-weight:bold;">SCAN TO SAVE TO PHONE</p>
   </div>
 </div>
 
 <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-<!-- html2canvas is required for the mobile download functionality -->
-<script src="https://cdn.jsdelivr.net"></script>
+<!-- html2canvas is needed for the download function -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
 const nameDisplay=document.getElementById("display-name");
@@ -163,12 +138,12 @@ const qrContainer=document.getElementById("qrcode-container");
 const qrImage=document.getElementById("qr-image");
 const nameInput=document.getElementById("username");
 
-// Set Date
+// Set Hong Kong Date
 dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
 
-// Custom Keyboard Logic
-function kPress(key) {
-  if (key === 'DEL') {
+// Handle Virtual Keyboard Press
+function press(key) {
+  if (key === 'BK') {
     nameInput.value = nameInput.value.slice(0, -1);
   } else {
     if (nameInput.value.length < 25) {
@@ -180,7 +155,7 @@ function kPress(key) {
 
 function updatePreview(){
   nameDisplay.textContent=nameInput.value.toUpperCase();
-  qrContainer.style.display="none";
+  qrContainer.style.display="none"; // Hide QR if name changes
 }
 
 window.onload=()=>{
@@ -200,8 +175,8 @@ function generateQR(){
   const cleanUrl = window.location.origin + window.location.pathname;
   const finalLink=`${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
 
-  // Using your existing QR logic
-  qrImage.src=`https://api.qrserver.com{encodeURIComponent(finalLink)}&size=200x200`;
+  // Correct API Endpoint
+  qrImage.src=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(finalLink)}&size=200x200`;
   qrContainer.style.display="flex";
 }
 
@@ -215,7 +190,7 @@ function downloadImage(){
 }
 
 function exitPage(){
-  window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site";
+  window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site/";
 }
 </script>
 </body>
