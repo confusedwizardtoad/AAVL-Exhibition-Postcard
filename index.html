@@ -2,29 +2,28 @@
 <html lang="en-HK">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' https://api.qrserver.com data:; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline';">
 <title>Ocean Giants Ambassador</title>
+
+<!-- ✅ 1. Correct SimpleKeyboard CSS -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css"
+/>
+
 <style>
 body {
   margin:0; background:#001219; color:#fff; font-family:'Arial Rounded MT Bold', sans-serif;
   display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;
+  padding-bottom: 20px;
 }
 
-/* 🟢 new EXIT button style */
+/* EXIT button style */
 #exit-btn {
-  position: fixed;
-  top: 15px;
-  right: 20px;
-  background: #F26B38;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  transition: background 0.3s;
+  position: fixed; top: 15px; right: 20px; background: #F26B38; color: white; border: none;
+  border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; font-weight: bold;
+  cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 1000;
 }
 #exit-btn:hover { background:#d95d2e; }
   
@@ -33,37 +32,102 @@ body {
   background-size:100% 100%; border:2px solid #33C7BE; border-radius:12px;
   box-shadow:0 10px 30px rgba(0,0,0,0.5); position:relative;
 }
+
+/* Certificate text */
 #display-name {
   position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
   font-size:3.5rem; font-weight:bold; color:#fff; text-shadow:3px 3px 6px rgba(0,0,0,0.8);
+  text-align: center; width: 90%;
 }
 #display-date {
   position:absolute; top:75%; left:50%; transform:translate(-50%,-50%);
   font-size:1.4rem; font-weight:bold; color:#fff; text-shadow:2px 2px 4px rgba(0,0,0,0.8);
+  text-align: center; width: 90%;
 }
-.controls{margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:15px;}
-input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
-      width:400px;text-align:center;background:#002535;color:white;}
-.gen-btn{background:#F26B38;color:white;border:none;padding:15px 30px;border-radius:8px;
-      font-size:1.2rem;cursor:pointer;font-weight:bold;}
-#qrcode-container{background:white;padding:20px;border-radius:10px;
-      display:none;flex-direction:column;align-items:center;margin-top:20px;}
-#qr-image{width:200px;height:200px;}
-#mobile-download-btn{display:none;margin-top:20px;background:#33C7BE;color:#001219;
-      padding:20px 40px;border:none;border-radius:10px;font-size:1.8rem;font-weight:bold;}
-.error-msg{font-size:2rem;color:#F26B38;text-align:center;}
+
+.controls {
+  margin-top:30px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:15px;
+}
+input {
+  padding:15px;
+  font-size:1.5rem;
+  border-radius:10px;
+  border:2px solid #33C7BE;
+  width:400px;
+  text-align:center;
+  background:#002535;
+  color:white;
+}
+.gen-btn {
+  background:#F26B38;
+  color:white;
+  border:none;
+  padding:15px 30px;
+  border-radius:8px;
+  font-size:1.2rem;
+  cursor:pointer;
+  font-weight:bold;
+}
+#qrcode-container {
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  margin-top:20px;
+}
+#qr-image { width:200px; height:200px; }
+
+#mobile-download-btn {
+  display:none;
+  margin-top:20px;
+  background:#33C7BE;
+  color:#001219;
+  padding:20px 40px;
+  border:none;
+  border-radius:10px;
+  font-size:1.8rem;
+  font-weight:bold;
+}
+
+/* ✅ Virtual Keyboard styling */
+.simple-keyboard {
+  background-color: #002535 !important;
+  width: 800px;
+  margin-top: 25px;
+  border-radius: 10px;
+}
+.hg-theme-default .hg-button {
+  background: #33C7BE !important;
+  color: #001219 !important;
+  height: 55px !important;
+  font-weight: bold;
+  font-size: 1.2rem !important;
+  border-bottom: 3px solid #28a19a !important;
+}
+.hg-theme-default .hg-button:active {
+  background: #F26B38 !important;
+  color: white !important;
+}
 </style>
 </head>
 <body>
-<!-- EXIT BUTTON -->
+
 <button id="exit-btn" onclick="exitPage()">×</button>
+
 <div id="postcard">
   <span id="display-name"></span>
   <span id="display-date"></span>
 </div>
 
 <div class="controls" id="monitor-ui">
-  <input type="text" id="username" placeholder="ENTER YOUR NAME" oninput="updatePreview()">
+  <!-- ✅ Make input readonly -->
+  <input type="text" id="username" placeholder="ENTER YOUR NAME" readonly>
   <button type="button" class="gen-btn" onclick="generateQR()">GENERATE QR</button>
 
   <div id="qrcode-container">
@@ -72,48 +136,91 @@ input{padding:15px;font-size:1.5rem;border-radius:10px;border:2px solid #33C7BE;
   </div>
 </div>
 
+<!-- Virtual Keyboard -->
+<div class="simple-keyboard" id="keyboard-wrapper"></div>
+
 <button id="mobile-download-btn" onclick="downloadImage()">💾 DOWNLOAD CERTIFICATE</button>
 
-<!-- ✅ load the REQUIRED library properly -->
+<!-- ✅ Correct Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
 
 <script>
-const nameDisplay=document.getElementById("display-name");
-const dateDisplay=document.getElementById("display-date");
-const qrContainer=document.getElementById("qrcode-container");
-const qrImage=document.getElementById("qr-image");
+const nameDisplay = document.getElementById("display-name");
+const dateDisplay = document.getElementById("display-date");
+const qrContainer = document.getElementById("qrcode-container");
+const qrImage = document.getElementById("qr-image");
+const nameInput = document.getElementById("username");
 
-// show today's date
-dateDisplay.textContent=new Date().toLocaleDateString("en-HK",{day:'numeric',month:'short',year:'numeric'});
+// set current date
+dateDisplay.textContent = new Date().toLocaleDateString("en-HK", {
+  day: 'numeric', month: 'short', year: 'numeric'
+});
 
-// decide view mode
-window.onload=()=>{
-  const params=new URLSearchParams(window.location.search);
-  if(params.has('name')){
-    nameDisplay.textContent=decodeURIComponent(params.get('name')).toUpperCase();
+// ✅ sanitize helper
+function sanitizeName(name){
+  return name.replace(/[^a-zA-Z0-9\s\-']/g,'').trim();
+}
+
+// ✅ initialize virtual keyboard
+let myKeyboard;
+document.addEventListener("DOMContentLoaded", function() {
+  myKeyboard = new window.SimpleKeyboard.default({
+    onChange: input => {
+      // sync to input safely
+      const safe = sanitizeName(input);
+      if (safe.length > 30) return; // prevent overflow
+      nameInput.value = safe;
+      updatePreview();
+    },
+    layout: {
+      default: [
+        "Q W E R T Y U I O P",
+        "A S D F G H J K L",
+        "Z X C V B N M {bksp}",
+        "{space}"
+      ]
+    },
+    display: {
+      '{bksp}': 'Delete',
+      '{space}': 'Space'
+    }
+  });
+});
+
+// view mode (mobile)
+window.onload = () => {
+  const params = new URLSearchParams(window.location.search);
+  if(params.has("name")){
+    nameDisplay.textContent = decodeURIComponent(params.get("name")).toUpperCase();
     document.getElementById("monitor-ui").style.display="none";
     document.getElementById("mobile-download-btn").style.display="block";
+    document.getElementById("keyboard-wrapper").style.display="none";
+    document.getElementById("exit-btn").style.display="none";
   }
 };
 
+// preview update
 function updatePreview(){
-  nameDisplay.textContent=document.getElementById("username").value.toUpperCase();
-  qrContainer.style.display="none";
+  nameDisplay.textContent = nameInput.value.toUpperCase();
+  qrContainer.style.display = "none";
 }
 
+// ✅ QR code creation fixed
 function generateQR(){
-  const nameVal=document.getElementById("username").value.trim();
-  if(!nameVal){alert("Please enter your name first!");return;}
-  const cleanUrl=window.location.origin+window.location.pathname;
-  const finalLink=`${cleanUrl}?name=${encodeURIComponent(nameVal)}`;
-
-  // ✅ Correct QRServer API usage
-  qrImage.src=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(finalLink)}&size=200x200`;
-  qrContainer.style.display="flex";
+  const safe = sanitizeName(nameInput.value.trim());
+  if (!safe) { alert("Please enter your name first!"); return; }
+  if (safe.length > 30) { alert("Name too long!"); return; }
+  
+  const cleanUrl = window.location.origin + window.location.pathname;
+  const finalLink = `${cleanUrl}?name=${encodeURIComponent(safe)}`;
+  qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(finalLink)}&size=200x200`;
+  qrContainer.style.display = "flex";
 }
 
+// download certificate
 function downloadImage(){
-  html2canvas(document.getElementById("postcard"),{useCORS:true,scale:3}).then(canvas=>{
+  html2canvas(document.getElementById("postcard"), {useCORS:true, scale:3}).then(canvas=>{
     const link=document.createElement("a");
     link.download="Ocean-Giant-Ambassador.png";
     link.href=canvas.toDataURL("image/png");
@@ -121,14 +228,9 @@ function downloadImage(){
   });
 }
 
-/* 🟢 small function for the X button */
 function exitPage(){
-  window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site/";
+  window.location.href = "https://aavl-oceangiants-exhibition.my.canva.site";
 }
-
-  
 </script>
-</body>
-</html>
 </body>
 </html>
